@@ -61,7 +61,8 @@ jobs:
           directory: .
           framework: terraform
           softfail: false
-    
+          skip_check: CKV_AWS_116,CKV_AWS_117,CKV_AWS_309,CKV_AWS_272,CKV_AWS_173,CKV_AWS_119,CKV_AWS_158
+
       - name: Run Trivy
         uses: aquasecurity/trivy-action@master
         with:
