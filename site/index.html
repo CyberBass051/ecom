@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ecom-project — Phase 1</title>
+  <style>
+    body { font-family: sans-serif; max-width: 640px; margin: 40px auto; }
+    .product { border: 1px solid #ddd; padding: 12px; margin-bottom: 8px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Product Catalog</h1>
+  <div id="products">Loading...</div>
+
+  <script>
+    fetch('/products')
+      .then(r => r.json())
+      .then(items => {
+        const el = document.getElementById('products');
+        if (!items.length) {
+          el.textContent = 'No products yet — seed the table to see items here.';
+          return;
+        }
+        el.innerHTML = items.map(p =>
+          `<div class="product">${JSON.stringify(p)}</div>`
+        ).join('');
+      })
+      .catch(err => {
+        document.getElementById('products').textContent = 'Error: ' + err;
+      });
+  </script>
+</body>
+</html>
+

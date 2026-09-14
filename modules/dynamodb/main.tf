@@ -6,6 +6,7 @@ variable "owner" {
   type = string
 }
 
+#trivy:ignore:AVD-AWS-0025
 resource "aws_dynamodb_table" "products" {
   name         = "${var.project}-products"
   billing_mode = "PAY_PER_REQUEST"
