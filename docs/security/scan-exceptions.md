@@ -45,6 +45,19 @@ no business reason to block countries on a public portfolio demo),
 DR requirement), `CKV2_AWS_62` (S3 event notifications — no operational
 consumer for them yet).
 
+## Genuine conflict: ACLs required for log delivery vs. "disable all ACLs"
+
+`CKV2_AWS_65` ("disable ACLs account/bucket-wide") and CloudFront's
+standard access-logging feature are in direct conflict: standard
+logging still requires ACL-based delivery to the destination bucket
+(the `awslogsdelivery` grant), so `logs` cannot be `BucketOwnerEnforced`
+like every other bucket in this project and still receive CloudFront
+logs. This isn't a deferred fix — it's an either/or. Chose logging
+(via `BucketOwnerPreferred` + `log-delivery-write` ACL) over a
+blanket "no ACLs anywhere" posture, scoped to exactly one bucket.
+Revisit if AWS ships a policy-only (non-ACL) delivery path for
+CloudFront standard logs.
+
 ## Standing policy: WAF deferred
 
 A WAFv2 Web ACL (and its Log4j-specific AWS Managed Rule) adds real
