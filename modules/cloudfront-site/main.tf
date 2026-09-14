@@ -25,20 +25,24 @@ resource "aws_s3_bucket_versioning" "site" {
   }
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "logs" {
-  bucket = aws_s3_bucket.logs.id
-  rule {
-    id     = "expire-old-logs"
-    status = "Enabled"
-    filter {}
-    expiration {
-      days = 365
+resource "aws_s3_bucket_server_side_encryption_configuration" "site" {
+  bucket = aws_s3_bucket.site.id
+   rule { 
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256" 
     }
   }
 }
 # ---------- Log bucket: CloudFront access logs + S3 server access logs for the site bucket -----------
 resource "aws_s3_bucket" "logs" {
   bucket = "${var.project}-logs-${var.account_id}"
+}
+
+resource "aws_s3_bucket_versioning" "logs" {
+  bucket = aws_s3_bucket.logs.id
+  versioning_configuration {
+    status = "Enabled"
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "logs" {
@@ -69,8 +73,8 @@ resource "aws_s3_bucket_logging" "site" {
   target_prefix = "s3-access/"
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "site" {
-  bucket = aws_s3_bucket.site.id
+resource "aws_s3_bucket_lifecycle_configuration" "logs" {
+  bucket = aws_s3_bucket.logs.id
   rule {
     id     = "expire-noncurrent-versions"
     status = "Enabled"
@@ -80,6 +84,15 @@ resource "aws_s3_bucket_lifecycle_configuration" "site" {
     }
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
+    }
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
+  bucket = aws_s3_bucket.logs.id
+   rule { 
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256" 
     }
   }
 }
