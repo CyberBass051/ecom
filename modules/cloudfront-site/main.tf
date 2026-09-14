@@ -18,6 +18,24 @@ resource "aws_s3_bucket_ownership_controls" "site" {
   }
 }
 
+
+resource "aws_s3_bucket_lifecycle_configuration" "site" {
+  bucket = aws_s3_bucket.site.id
+  rule {
+    id     = "expire-noncurrent-versions"
+    status = "Enabled"
+    filter {}
+    noncurrent_version_expiration {
+      noncurrent_days = 90
+    }
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+  }
+}
+
+
+
 resource "aws_s3_bucket_versioning" "site" {
   bucket = aws_s3_bucket.site.id
   versioning_configuration {
