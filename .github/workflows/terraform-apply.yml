@@ -64,3 +64,4 @@ jobs:
         working-directory: ${{ env.DEV_DIR }}
 
 
+# trigger reindex
