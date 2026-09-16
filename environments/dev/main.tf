@@ -33,15 +33,30 @@ module "dynamodb" {
   owner   = local.owner
 }
 
+module "orders_pipeline" {
+  source = "../../modules/orders-pipeline"
+
+  project           = local.project
+  region            = local.region
+  account_id        = data.aws_caller_identity.current.account_id
+  orders_table_name = module.dynamodb.orders_table_name
+  orders_table_arn  = module.dynamodb.orders_table_arn
+  src_dir           = "${path.module}/../../src/order_consumer"
+  alert_email       = "pietrocorp051@gmail.com"
+}
+
 module "api" {
   source = "../../modules/api"
 
-  project    = local.project
-  region     = local.region
-  account_id = data.aws_caller_identity.current.account_id
-  table_name = module.dynamodb.table_name
-  table_arn  = module.dynamodb.table_arn
-  src_dir    = "${path.module}/../../src/get_products"
+  project                 = local.project
+  region                  = local.region
+  account_id              = data.aws_caller_identity.current.account_id
+  products_table_name     = module.dynamodb.products_table_name
+  products_table_arn      = module.dynamodb.products_table_arn
+  orders_queue_url        = module.orders_pipeline.queue_url
+  orders_queue_arn        = module.orders_pipeline.queue_arn
+  get_products_src_dir    = "${path.module}/../../src/get_products"
+  post_order_src_dir      = "${path.module}/../../src/post_order"
 }
 
 module "site" {
@@ -66,6 +81,10 @@ output "api_endpoint" {
 
 output "products_url" {
   value = "${module.api.api_endpoint}/products"
+}
+
+output "orders_url" {
+  value = "${module.api.api_endpoint}/orders"
 }
 
 output "site_url" {
